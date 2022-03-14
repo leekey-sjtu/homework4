@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import java.lang.Math.PI
 import java.util.*
@@ -22,6 +23,9 @@ class ClockView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
+
+    var hx: Float = 1000F
+    var hy: Float = 1000F
 
     private var hPaint: Paint = Paint()  //时针
     private var mPaint: Paint = Paint()  //分针
@@ -80,6 +84,7 @@ class ClockView @JvmOverloads constructor(
         var sdeg: Double = -30.0
         var x: Float = ((hr * cos(hdeg * PI / 180)) + r).toFloat()
         var y: Float = ((hr * sin(hdeg * PI / 180)) + r).toFloat()
+        canvas?.drawLine(r, r, hx, hy, hPaint) //test时针
         canvas?.drawLine(r, r, x, y, hPaint)
         canvas?.drawCircle(x, y, 6F, hPaint)
         x = ((mr * cos(mdeg * PI / 180)) + r).toFloat()
@@ -164,5 +169,13 @@ class ClockView @JvmOverloads constructor(
 //        canvas?.drawCircle(500F, 500F, 10F, mPaint)
 //        val oval: RectF = RectF(0F, 0F, width.toFloat(), height.toFloat())
 //        canvas?.drawArc(RectF(0F, 0F, width.toFloat(), height.toFloat()), 0F, 360F, true, wPaint)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        super.onTouchEvent(event)
+        this.hx = event?.getX()!!
+        this.hy = event.getY()
+        this.invalidate()
+        return true
     }
 }
