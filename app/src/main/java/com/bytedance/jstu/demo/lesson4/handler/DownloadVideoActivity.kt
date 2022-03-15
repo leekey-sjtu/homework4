@@ -57,7 +57,7 @@ class DownloadVideoActivity : AppCompatActivity() {
         override fun run() {
             super.run()
             startDownload()
-            sleep(500)
+            sleep(2000)
             downloadVideo()
             finishDownload()
         }

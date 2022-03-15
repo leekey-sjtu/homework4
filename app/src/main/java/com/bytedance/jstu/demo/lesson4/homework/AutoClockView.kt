@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -15,6 +16,8 @@ import com.bytedance.jstu.demo.R
 import org.w3c.dom.Text
 import java.lang.Math.*
 import java.util.*
+import android.os.Handler
+import android.os.Message
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -23,18 +26,18 @@ import kotlin.math.sin
  *  time   : 2022/03/13
  *  desc   :
  */
-class ClockView @JvmOverloads constructor(
+class AutoClockView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-//    private var tv: TextView = findViewById(R.id.tv_clock)
     private var hPaint: Paint = Paint()  //时针
     private var mPaint: Paint = Paint()  //分针
     private var sPaint: Paint = Paint()  //秒针
     private var wPaint: Paint = Paint()  //表盘
     private var wPaintBold: Paint = Paint()  //表盘
+    var flag = false  //记录bug
 
     init {  //时针
         hPaint.color = Color.RED
@@ -85,7 +88,6 @@ class ClockView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-//        Toast.makeText(context, "width=$width,height=$height", Toast.LENGTH_SHORT).show()
 
         //画时针
         var x: Float = ((0.4 * r * cos(hdeg * PI / 180)) + ox).toFloat()
@@ -158,6 +160,9 @@ class ClockView @JvmOverloads constructor(
         var hour = (hdeg / 30 + 3).toInt()
         if(hour > 12) hour -= 12
         var min: Int = (mdeg / 6 + 15).toInt() % 60
+        if(flag) {
+            min = (min + 1) % 60
+        }
         var sec: Int = (sdeg / 6 + 15).toInt() % 60
 
         //保持时间两位数
@@ -168,62 +173,16 @@ class ClockView @JvmOverloads constructor(
         var ssec = sec.toString()
         if (sec < 10)  ssec = "0" + ssec
         canvas?.drawText("$shour : $smin : $ssec", 500F, 300F, wPaintBold)
-
-//        canvas?.drawPoint(500F,500F, mPaint)
-//        canvas?.drawLine(500F, 500F, 933F, 250F, mPaint)
-//        canvas?.drawOval(200F, 200F, 100F, 100F, mPaint)
-//        canvas?.drawText("texttext", 100F, 100F, mPaint)
-//        canvas?.drawRect(0F,0F,1000F,1000F,mPaint)
-//        canvas?.drawCircle(500F, 500F, 10F, mPaint)
-//        val oval: RectF = RectF(0F, 0F, width.toFloat(), height.toFloat())
-//        canvas?.drawArc(RectF(0F, 0F, width.toFloat(), height.toFloat()), 0F, 360F, true, wPaint)
     }
 
-    //实现手动触摸切换时间
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        super.onTouchEvent(event)
-        this.curX = event?.getX()!!
-        this.curY = event?.getY()!!
-
-        //当前触摸点相对于时钟中心的角度
-        var deg: Double = toDegrees(atan(((curY!! - oy) / (curX!! - ox)).toDouble()))
-        if(curX!! >= ox && curY!! >= oy){  //第一象限
-            //值不变
-        }else if(curX!! <= ox && curY!! >= oy){  //第二象限
-            deg += 180.0
-        }else if(curX!! <= ox && curY!! <= oy){  //第三象限
-            deg += 180.0
-        }else if(curX!! >= ox && curY!! <= oy){  //第四象限
-            deg += 360.0
-        }
-
-        //用角度来判断应该滑动哪个针
-        if(abs(deg - sdeg) <= 6 || abs(deg - sdeg) >= 354){
-            sdeg = deg
-            //滑动秒针，时针、分针应该相应转动
-            //TODO
-        }else if(abs(deg - mdeg) <= 6 || abs(deg - mdeg) >= 354){
-            //滑动分针，时针应该相应转动
-            if(mdeg - deg >= 354)  {
-                hdeg += (deg + 360 - mdeg) / 12
-            }else if(deg - mdeg >= 354) {
-                hdeg += (deg - 360 - mdeg) / 12
-            }else {
-                hdeg += (deg - mdeg) / 12
-            }
-            mdeg = deg
-            Toast.makeText(context, "$hdeg", Toast.LENGTH_SHORT).show()
-        }else if(abs(deg - hdeg) <= 6 || abs(deg - hdeg) >= 354){
-            hdeg = deg
-        }
-
-        //重绘onDraw
+    //每秒刷新各针的角度
+    fun setDeg() {
+        hdeg += 1.0 / 120
+        mdeg += 0.1
+        sdeg += 6.0
+        if(sdeg >= 360) sdeg -= 360
+        flag = sdeg == 270.0
         this.invalidate()
-
-        return true
     }
 
-    fun oneBug() {
-
-    }
 }
