@@ -29,7 +29,6 @@ class ClockView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-//    private var tv: TextView = findViewById(R.id.tv_clock)
     private var hPaint: Paint = Paint()  //时针
     private var mPaint: Paint = Paint()  //分针
     private var sPaint: Paint = Paint()  //秒针
@@ -74,14 +73,14 @@ class ClockView @JvmOverloads constructor(
         wPaintBold.textAlign = Paint.Align.CENTER
     }
 
-    var curX: Float? = 0F
-    var curY: Float? = 0F
-    var hdeg: Double = 160.0  //时针角度
-    var mdeg: Double = 60.0  //分针角度
-    var sdeg: Double = 270.0  //秒针角度
-    val ox: Float = 500F  //圆心坐标
-    val oy: Float = 1000F  //圆心坐标
-    val r: Float = 500F  //半径
+    private var curX: Float? = 0F
+    private var curY: Float? = 0F
+    private var hdeg: Double = 162.5  //时针角度
+    private var mdeg: Double = 60.0  //分针角度
+    private var sdeg: Double = 270.0  //秒针角度
+    private val ox: Float = 500F  //圆心坐标
+    private val oy: Float = 1000F  //圆心坐标
+    private val r: Float = 500F  //半径
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -197,33 +196,48 @@ class ClockView @JvmOverloads constructor(
             deg += 360.0
         }
 
-        //用角度来判断应该滑动哪个针
-        if(abs(deg - sdeg) <= 6 || abs(deg - sdeg) >= 354){
+        //用触摸点的角度来判断应该滑动哪个针
+        if(abs(deg - sdeg) <= 6 || abs(deg - sdeg) >= 354){  //滑动秒针，时针、分针应该相应转动
+            if(sdeg - deg >= 354)  {
+                mdeg += (deg + 360 - sdeg) / 60
+                hdeg += (deg + 360 - sdeg) / 720
+            } else if(deg - mdeg >= 354) {
+                mdeg += (deg - 360 - sdeg) / 60
+                hdeg += (deg - 360 - sdeg) / 720
+            } else {
+                mdeg += (deg - sdeg) / 60
+                hdeg += (deg - sdeg) / 720
+            }
             sdeg = deg
-            //滑动秒针，时针、分针应该相应转动
-            //TODO
-        }else if(abs(deg - mdeg) <= 6 || abs(deg - mdeg) >= 354){
-            //滑动分针，时针应该相应转动
+        } else if(abs(deg - mdeg) <= 6 || abs(deg - mdeg) >= 354){  //滑动分针，时针、秒针应该相应转动
             if(mdeg - deg >= 354)  {
                 hdeg += (deg + 360 - mdeg) / 12
-            }else if(deg - mdeg >= 354) {
+//                sdeg += (deg + 360 - mdeg) * 60
+            } else if(deg - mdeg >= 354) {
                 hdeg += (deg - 360 - mdeg) / 12
-            }else {
+//                sdeg += (deg - 360 - mdeg) * 60
+            } else {
                 hdeg += (deg - mdeg) / 12
+//                sdeg += (deg - mdeg) * 60
             }
             mdeg = deg
-            Toast.makeText(context, "$hdeg", Toast.LENGTH_SHORT).show()
-        }else if(abs(deg - hdeg) <= 6 || abs(deg - hdeg) >= 354){
+        } else if(abs(deg - hdeg) <= 6 || abs(deg - hdeg) >= 354){  //滑动时针
+            if(hdeg - deg >= 354)  {
+                mdeg += (deg + 360 - hdeg) * 12
+//                sdeg += (deg + 360 - hdeg) * 720
+            } else if(deg - hdeg >= 354) {
+                mdeg += (deg - 360 - hdeg) * 12
+//                sdeg += (deg - 360 - hdeg) * 720
+            } else {
+                mdeg += (deg - hdeg) * 12
+//                sdeg += (deg - hdeg) * 720
+            }
             hdeg = deg
         }
 
         //重绘onDraw
         this.invalidate()
-
         return true
     }
 
-    fun oneBug() {
-
-    }
 }

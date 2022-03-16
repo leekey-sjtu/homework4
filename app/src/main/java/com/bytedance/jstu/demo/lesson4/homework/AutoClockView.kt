@@ -23,7 +23,7 @@ import kotlin.math.sin
 
 /**
  *  author : wudewei
- *  time   : 2022/03/13
+ *  time   : 2022/03/15
  *  desc   :
  */
 class AutoClockView @JvmOverloads constructor(
@@ -36,39 +36,36 @@ class AutoClockView @JvmOverloads constructor(
     private var mPaint: Paint = Paint()  //分针
     private var sPaint: Paint = Paint()  //秒针
     private var wPaint: Paint = Paint()  //表盘
-    private var wPaintBold: Paint = Paint()  //表盘
-    var flag = false  //记录bug
+    private var wPaintBold: Paint = Paint()  //表盘-粗线
 
-    init {  //时针
+    //初始化画笔工具
+    init {
+        //时针
         hPaint.color = Color.RED
         hPaint.style = Paint.Style.FILL
         hPaint.isAntiAlias = true
         hPaint.strokeWidth = 12F
         hPaint.strokeJoin = Paint.Join.ROUND
-    }
 
-    init {  //分针
+        //分针
         mPaint.color = Color.BLUE
         mPaint.style = Paint.Style.FILL
         mPaint.isAntiAlias = true
         mPaint.strokeWidth = 10F
-    }
 
-    init {  //秒针
+        //秒针
         sPaint.color = Color.WHITE
         sPaint.style = Paint.Style.FILL
         sPaint.isAntiAlias = true
         sPaint.strokeWidth = 6F
-    }
 
-    init {  //表盘
+        //表盘
         wPaint.color = Color.parseColor("#6a6a6a")
         wPaint.style = Paint.Style.FILL
         wPaint.isAntiAlias = true
         wPaint.strokeWidth = 6F
-    }
 
-    init {  //表盘-粗线
+        //表盘-粗线
         wPaintBold.color = Color.WHITE
         wPaintBold.style = Paint.Style.FILL
         wPaintBold.isAntiAlias = true
@@ -77,14 +74,13 @@ class AutoClockView @JvmOverloads constructor(
         wPaintBold.textAlign = Paint.Align.CENTER
     }
 
-    var curX: Float? = 0F
-    var curY: Float? = 0F
-    var hdeg: Double = 160.0  //时针角度
-    var mdeg: Double = 60.0  //分针角度
-    var sdeg: Double = 270.0  //秒针角度
-    val ox: Float = 500F  //圆心坐标
-    val oy: Float = 1000F  //圆心坐标
-    val r: Float = 500F  //半径
+    //默认参数
+    private var hdeg: Double = 162.5  //时针角度
+    private var mdeg: Double = 60.0  //分针角度
+    private var sdeg: Double = 270.0  //秒针角度
+    private val ox: Float = 500F  //圆心坐标
+    private val oy: Float = 1000F  //圆心坐标
+    private val r: Float = 500F  //半径
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -160,9 +156,6 @@ class AutoClockView @JvmOverloads constructor(
         var hour = (hdeg / 30 + 3).toInt()
         if(hour > 12) hour -= 12
         var min: Int = (mdeg / 6 + 15).toInt() % 60
-        if(flag) {
-            min = (min + 1) % 60
-        }
         var sec: Int = (sdeg / 6 + 15).toInt() % 60
 
         //保持时间两位数
@@ -180,8 +173,9 @@ class AutoClockView @JvmOverloads constructor(
         hdeg += 1.0 / 120
         mdeg += 0.1
         sdeg += 6.0
+        if(hdeg >= 360) hdeg -= 360
+        if(mdeg >= 360) mdeg -= 360
         if(sdeg >= 360) sdeg -= 360
-        flag = sdeg == 270.0
         this.invalidate()
     }
 
