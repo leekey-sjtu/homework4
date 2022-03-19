@@ -32,46 +32,47 @@ class AutoClockView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private var hPaint: Paint = Paint()  //时针
-    private var mPaint: Paint = Paint()  //分针
-    private var sPaint: Paint = Paint()  //秒针
-    private var wPaint: Paint = Paint()  //表盘
-    private var wPaintBold: Paint = Paint()  //表盘-粗线
+    //时针
+    private var hPaint: Paint = Paint().apply {
+        color = Color.RED
+        style = Paint.Style.FILL
+        isAntiAlias = true
+        strokeWidth = 12F
+        strokeJoin = Paint.Join.ROUND
+    }
 
-    //初始化画笔工具
-    init {
-        //时针
-        hPaint.color = Color.RED
-        hPaint.style = Paint.Style.FILL
-        hPaint.isAntiAlias = true
-        hPaint.strokeWidth = 12F
-        hPaint.strokeJoin = Paint.Join.ROUND
+    //分针
+    private var mPaint: Paint = Paint().apply {
+        color = Color.BLUE
+        style = Paint.Style.FILL
+        isAntiAlias = true
+        strokeWidth = 10F
+    }
 
-        //分针
-        mPaint.color = Color.BLUE
-        mPaint.style = Paint.Style.FILL
-        mPaint.isAntiAlias = true
-        mPaint.strokeWidth = 10F
+    //秒针
+    private var sPaint: Paint = Paint().apply {
+        color = Color.WHITE
+        style = Paint.Style.FILL
+        isAntiAlias = true
+        strokeWidth = 6F
+    }
 
-        //秒针
-        sPaint.color = Color.WHITE
-        sPaint.style = Paint.Style.FILL
-        sPaint.isAntiAlias = true
-        sPaint.strokeWidth = 6F
+    //表盘
+    private var wPaint: Paint = Paint().apply {
+        color = Color.parseColor("#6a6a6a")
+        style = Paint.Style.FILL
+        isAntiAlias = true
+        strokeWidth = 6F
+    }
 
-        //表盘
-        wPaint.color = Color.parseColor("#6a6a6a")
-        wPaint.style = Paint.Style.FILL
-        wPaint.isAntiAlias = true
-        wPaint.strokeWidth = 6F
-
-        //表盘-粗线
-        wPaintBold.color = Color.WHITE
-        wPaintBold.style = Paint.Style.FILL
-        wPaintBold.isAntiAlias = true
-        wPaintBold.strokeWidth = 8F
-        wPaintBold.textSize = 100F
-        wPaintBold.textAlign = Paint.Align.CENTER
+    //表盘-粗线
+    private var wPaintBold: Paint = Paint().apply {
+        color = Color.WHITE
+        style = Paint.Style.FILL
+        isAntiAlias = true
+        strokeWidth = 8F
+        textSize = 100F
+        textAlign = Paint.Align.CENTER
     }
 
     //默认参数
@@ -84,26 +85,13 @@ class AutoClockView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        drawClockDial(canvas)
+        drawClockHand(canvas)
+        drawDigitalClock(canvas)
+    }
 
-        //画时针
-        var x: Float = ((0.4 * r * cos(hdeg * PI / 180)) + ox).toFloat()
-        var y: Float = ((0.4 * r  * sin(hdeg * PI / 180)) + oy).toFloat()
-        canvas?.drawLine(ox, oy, x, y, hPaint)
-        canvas?.drawCircle(x, y, 6F, hPaint)
-
-        //画分针
-        x = ((0.65 * r * cos(mdeg * PI / 180)) + ox).toFloat()
-        y = ((0.65 * r * sin(mdeg * PI / 180)) + oy).toFloat()
-        canvas?.drawLine(ox, oy, x, y, mPaint)
-        canvas?.drawCircle(x, y, 5F, mPaint)
-
-        //画秒针
-        x = ((0.8 * r * cos(sdeg * PI / 180)) + ox).toFloat()
-        y = ((0.8 * r * sin(sdeg * PI / 180)) + oy).toFloat()
-        canvas?.drawLine(ox, oy, x, y, sPaint)
-        canvas?.drawCircle(x, y, 3F, sPaint)
-        canvas?.drawCircle(ox, oy, 10F, sPaint)
-
+    //画时钟表盘
+    private fun drawClockDial(canvas: Canvas?) {
         //画时间刻度线
         for(deg in 0..354 step 6) {
             val x1: Float = (0.9 * r * cos(deg.toDouble() * PI / 180)).toFloat() + ox
@@ -115,8 +103,8 @@ class AutoClockView @JvmOverloads constructor(
         }
 
         //画时间数字
-        x = (0.8 * r * cos( 5.5 * PI / 180)).toFloat() + ox
-        y = (0.8 * r * sin( 5.5 * PI / 180)).toFloat() + oy
+        var x = (0.8 * r * cos( 5.5 * PI / 180)).toFloat() + ox
+        var y = (0.8 * r * sin( 5.5 * PI / 180)).toFloat() + oy
         canvas?.drawText("3", x, y, wPaintBold)
         x = (0.82 * r * cos( 34 * PI / 180)).toFloat() + ox
         y = (0.82 * r * sin( 34 * PI / 180)).toFloat() + oy
@@ -151,8 +139,32 @@ class AutoClockView @JvmOverloads constructor(
         x = (0.76 * r * cos( 335 * PI / 180)).toFloat() + ox
         y = (0.76 * r * sin( 335 * PI / 180)).toFloat() + oy
         canvas?.drawText("2", x, y, wPaintBold)
+    }
 
-        //画电子时钟
+    //画时钟指针
+    private fun drawClockHand(canvas: Canvas?) {
+        //画时针
+        var x: Float = ((0.4 * r * cos(hdeg * PI / 180)) + ox).toFloat()
+        var y: Float = ((0.4 * r  * sin(hdeg * PI / 180)) + oy).toFloat()
+        canvas?.drawLine(ox, oy, x, y, hPaint)
+        canvas?.drawCircle(x, y, 6F, hPaint)
+
+        //画分针
+        x = ((0.65 * r * cos(mdeg * PI / 180)) + ox).toFloat()
+        y = ((0.65 * r * sin(mdeg * PI / 180)) + oy).toFloat()
+        canvas?.drawLine(ox, oy, x, y, mPaint)
+        canvas?.drawCircle(x, y, 5F, mPaint)
+
+        //画秒针
+        x = ((0.8 * r * cos(sdeg * PI / 180)) + ox).toFloat()
+        y = ((0.8 * r * sin(sdeg * PI / 180)) + oy).toFloat()
+        canvas?.drawLine(ox, oy, x, y, sPaint)
+        canvas?.drawCircle(x, y, 3F, sPaint)
+        canvas?.drawCircle(ox, oy, 10F, sPaint)
+    }
+
+    //画电子时钟
+    private fun drawDigitalClock(canvas: Canvas?) {
         var hour = (hdeg / 30 + 3).toInt()
         if(hour > 12) hour -= 12
         var min: Int = (mdeg / 6 + 15).toInt() % 60
@@ -178,5 +190,4 @@ class AutoClockView @JvmOverloads constructor(
         if(sdeg >= 360) sdeg -= 360
         this.invalidate()
     }
-
 }
